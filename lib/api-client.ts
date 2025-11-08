@@ -20,6 +20,7 @@ import type {
   PhotoTextDocumentSummary,
   PhotoTextDocumentCreate,
   PhotoTextDocumentUpdate,
+  Author,
 } from './types';
 
 const API_BASE_URL = 'https://api.trollfjell.com/api/v1';
@@ -47,6 +48,11 @@ class ApiClient {
     }
 
     return headers;
+  }
+
+  // Check if user is authenticated
+  isAuthenticated(): boolean {
+    return this.token !== null;
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
@@ -153,23 +159,23 @@ class ApiClient {
     }
 
     const response = await fetch(
-      `${this.baseUrl}/photos?${queryParams.toString()}`,
-      { headers: this.getHeaders() }
+      `${this.baseUrl}/photos/?${queryParams.toString()}`,
+      { headers: this.getHeaders(false) } // Allow anonymous access
     );
 
     return this.handleResponse<PaginatedResponse<Photo>>(response);
   }
 
   async getPhoto(hothash: string): Promise<Photo> {
-    const response = await fetch(`${this.baseUrl}/photos/${hothash}`, {
-      headers: this.getHeaders(),
+    const response = await fetch(`${this.baseUrl}/photos/${hothash}/`, {
+      headers: this.getHeaders(false), // Allow anonymous access
     });
 
     return this.handleResponse<Photo>(response);
   }
 
   async updatePhotoMetadata(hothash: string, metadata: PhotoMetadata): Promise<Photo> {
-    const response = await fetch(`${this.baseUrl}/photos/${hothash}`, {
+    const response = await fetch(`${this.baseUrl}/photos/${hothash}/`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(metadata),
@@ -179,7 +185,7 @@ class ApiClient {
   }
 
   async searchPhotos(params: SearchParams): Promise<PaginatedResponse<Photo>> {
-    const response = await fetch(`${this.baseUrl}/photos/search`, {
+    const response = await fetch(`${this.baseUrl}/photos/search/`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(params),
@@ -190,7 +196,7 @@ class ApiClient {
 
   // Photo preview URLs
   getHotPreviewUrl(hothash: string): string {
-    return `${this.baseUrl}/photos/${hothash}/hotpreview`;
+    return `${this.baseUrl}/photos/${hothash}/hotpreview/`;
   }
 
   getColdPreviewUrl(hothash: string, width?: number, height?: number): string {
@@ -198,7 +204,7 @@ class ApiClient {
     if (width) params.append('width', width.toString());
     if (height) params.append('height', height.toString());
     const query = params.toString();
-    return `${this.baseUrl}/photos/${hothash}/coldpreview${query ? '?' + query : ''}`;
+    return `${this.baseUrl}/photos/${hothash}/coldpreview/${query ? '?' + query : ''}`;
   }
 
   /**
@@ -344,6 +350,54 @@ class ApiClient {
     await this.handleResponse<void>(response);
   }
 
+  // Authors (Phase 1: Shared metadata tags)
+  async getAuthors(): Promise<{ authors: Author[] }> {
+    const response = await fetch(`${this.baseUrl}/authors/`, {
+      headers: this.getHeaders(false), // No auth required for GET
+    });
+
+    return this.handleResponse<{ authors: Author[] }>(response);
+  }
+
+  async getAuthor(id: number): Promise<Author> {
+    const response = await fetch(`${this.baseUrl}/authors/${id}/`, {
+      headers: this.getHeaders(false), // No auth required for GET
+    });
+
+    return this.handleResponse<Author>(response);
+  }
+
+  async createAuthor(data: { name: string; bio?: string }): Promise<Author> {
+    const response = await fetch(`${this.baseUrl}/authors/`, {
+      method: 'POST',
+      headers: this.getHeaders(), // Auth required for POST
+      body: JSON.stringify(data),
+    });
+
+    return this.handleResponse<Author>(response);
+  }
+
+  async updateAuthor(id: number, data: { name?: string; bio?: string }): Promise<Author> {
+    const response = await fetch(`${this.baseUrl}/authors/${id}/`, {
+      method: 'PUT',
+      headers: this.getHeaders(), // Auth required for PUT
+      body: JSON.stringify(data),
+    });
+
+    return this.handleResponse<Author>(response);
+  }
+
+  async deleteAuthor(id: number): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/authors/${id}/`, {
+      method: 'DELETE',
+      headers: this.getHeaders(), // Auth required for DELETE
+    });
+
+    if (response.status !== 204) {
+      await this.handleResponse<void>(response);
+    }
+  }
+
   // Collections
   async getCollections(skip: number = 0, limit: number = 100): Promise<{ collections: Collection[]; total: number }> {
     const params = new URLSearchParams();
@@ -479,6 +533,7 @@ class ApiClient {
   async getPhotoTexts(filters?: {
     document_type?: 'general' | 'album' | 'slideshow';
     is_published?: boolean;
+    visibility?: string;
     sort_by?: 'created_at' | 'updated_at' | 'title';
     sort_order?: 'asc' | 'desc';
     offset?: number;
@@ -488,28 +543,29 @@ class ApiClient {
     
     if (filters?.document_type) params.append('document_type', filters.document_type);
     if (filters?.is_published !== undefined) params.append('is_published', filters.is_published.toString());
+    if (filters?.visibility) params.append('visibility', filters.visibility);
     if (filters?.sort_by) params.append('sort_by', filters.sort_by);
     if (filters?.sort_order) params.append('sort_order', filters.sort_order);
     if (filters?.offset !== undefined) params.append('offset', filters.offset.toString());
     if (filters?.limit !== undefined) params.append('limit', filters.limit.toString());
     
-    const response = await fetch(`${this.baseUrl}/phototext?${params.toString()}`, {
-      headers: this.getHeaders(),
+    const response = await fetch(`${this.baseUrl}/phototext/?${params.toString()}`, {
+      headers: this.getHeaders(false), // Allow anonymous access
     });
 
     return this.handleResponse<{ documents: PhotoTextDocumentSummary[]; total: number }>(response);
   }
 
   async getPhotoText(id: number): Promise<PhotoTextDocument> {
-    const response = await fetch(`${this.baseUrl}/phototext/${id}`, {
-      headers: this.getHeaders(),
+    const response = await fetch(`${this.baseUrl}/phototext/${id}/`, {
+      headers: this.getHeaders(false), // Allow anonymous access
     });
 
     return this.handleResponse<PhotoTextDocument>(response);
   }
 
   async createPhotoText(data: PhotoTextDocumentCreate): Promise<{ id: number; created_at: string }> {
-    const response = await fetch(`${this.baseUrl}/phototext`, {
+    const response = await fetch(`${this.baseUrl}/phototext/`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(data),
@@ -519,7 +575,7 @@ class ApiClient {
   }
 
   async updatePhotoText(id: number, data: PhotoTextDocumentUpdate): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/phototext/${id}`, {
+    const response = await fetch(`${this.baseUrl}/phototext/${id}/`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(data),
@@ -529,7 +585,7 @@ class ApiClient {
   }
 
   async deletePhotoText(id: number): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/phototext/${id}`, {
+    const response = await fetch(`${this.baseUrl}/phototext/${id}/`, {
       method: 'DELETE',
       headers: this.getHeaders(),
     });

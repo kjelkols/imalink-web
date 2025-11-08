@@ -1,14 +1,15 @@
 'use client';
 
-import { PhotoTextDocumentSummary } from '@/lib/types';
+import { PhotoTextDocumentSummary, VisibilityLevel } from '@/lib/types';
 import { apiClient } from '@/lib/api-client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { VisibilityBadge } from '@/components/visibility-badge';
 import Link from 'next/link';
-import { Calendar, Clock, Eye, EyeOff } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 
 interface StoryCardProps {
-  story: PhotoTextDocumentSummary;
+  story: PhotoTextDocumentSummary & { visibility?: string };
 }
 
 export function StoryCard({ story }: StoryCardProps) {
@@ -44,14 +45,17 @@ export function StoryCard({ story }: StoryCardProps) {
               alt={story.cover_image_alt || story.title}
               className="object-cover w-full h-full transition-transform group-hover:scale-105"
             />
-            {!story.is_published && (
-              <div className="absolute top-2 right-2">
+            <div className="absolute top-2 right-2 flex gap-2">
+              <VisibilityBadge 
+                visibility={(story.visibility as VisibilityLevel) || 'private'} 
+                className="bg-background/80 backdrop-blur"
+              />
+              {!story.is_published && (
                 <Badge variant="secondary" className="bg-background/80 backdrop-blur">
-                  <EyeOff className="h-3 w-3 mr-1" />
                   Utkast
                 </Badge>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
         

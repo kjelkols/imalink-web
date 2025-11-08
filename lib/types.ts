@@ -103,6 +103,37 @@ export interface SavedSearchWithUI extends SavedSearch {
   hasNewResults?: boolean;
 }
 
+// ===== Visibility System (Phase 1) =====
+
+export type VisibilityLevel = 'private' | 'space' | 'authenticated' | 'public';
+
+export const VISIBILITY_LEVELS: { value: VisibilityLevel; label: string; description: string; icon: string }[] = [
+  {
+    value: 'private',
+    label: 'Private',
+    description: 'Only you can see this',
+    icon: 'lock'
+  },
+  {
+    value: 'space',
+    label: 'Space',
+    description: 'Shared with space members (Coming in Phase 2)',
+    icon: 'users'
+  },
+  {
+    value: 'authenticated',
+    label: 'Authenticated',
+    description: 'Any logged-in user can see this',
+    icon: 'user-check'
+  },
+  {
+    value: 'public',
+    label: 'Public',
+    description: 'Anyone can see this (including anonymous visitors)',
+    icon: 'globe'
+  }
+];
+
 // ===== Utility Types =====
 
 export interface ApiError {

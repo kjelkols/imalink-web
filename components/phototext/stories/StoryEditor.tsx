@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { PhotoTextDocumentCreate, PhotoTextDocumentUpdate, PhotoWithTags } from '@/lib/types';
+import { PhotoTextDocumentCreate, PhotoTextDocumentUpdate, PhotoWithTags, VisibilityLevel } from '@/lib/types';
 import { apiClient } from '@/lib/api-client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { ImagePicker } from '@/components/phototext/ImagePicker';
+import { VisibilitySelector } from '@/components/visibility-selector';
+import { PhotoTextVisibilityWarning } from '@/components/phototext-visibility-warning';
 import { 
   Plus, 
   Heading1, 
@@ -41,6 +43,7 @@ interface StoryEditorProps {
     content?: { blocks: PhotoTextBlock[] };
     cover_image_hash?: string;
     cover_image_alt?: string;
+    visibility?: VisibilityLevel;
   };
   onSave: (data: PhotoTextDocumentCreate | PhotoTextDocumentUpdate) => Promise<void>;
   onCancel: () => void;
@@ -51,6 +54,7 @@ export function StoryEditor({ initialData, onSave, onCancel }: StoryEditorProps)
   const [abstract, setAbstract] = useState(initialData?.abstract || '');
   const [coverImageHash, setCoverImageHash] = useState(initialData?.cover_image_hash || '');
   const [coverImageAlt, setCoverImageAlt] = useState(initialData?.cover_image_alt || '');
+  const [visibility, setVisibility] = useState<VisibilityLevel>(initialData?.visibility || 'private');
   const [blocks, setBlocks] = useState<PhotoTextBlock[]>(
     initialData?.content?.blocks || [{ type: 'paragraph', content: [{ type: 'text', text: '' }] }]
   );
@@ -144,6 +148,7 @@ export function StoryEditor({ initialData, onSave, onCancel }: StoryEditorProps)
       const data = {
         title: title.trim(),
         document_type: 'general' as const,
+        visibility: visibility,
         content: {
           version: '1.0',
           documentType: 'general',
@@ -266,6 +271,22 @@ export function StoryEditor({ initialData, onSave, onCancel }: StoryEditorProps)
             </div>
           )}
         </div>
+
+        {/* Visibility Controls */}
+        <VisibilitySelector
+          value={visibility}
+          onChange={setVisibility}
+          className="mt-4"
+        />
+
+        {/* Warning about photo sync */}
+        {visibility !== 'private' && blocks.length > 0 && (
+          <PhotoTextVisibilityWarning
+            newVisibility={visibility}
+            content={{ blocks }}
+            className="mt-4"
+          />
+        )}
       </Card>
 
       {/* Content Blocks */}
