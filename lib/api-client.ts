@@ -647,6 +647,38 @@ class ApiClient {
 
     return this.handleResponse<PaginatedResponse<Photo>>(response);
   }
+
+  // Photo import with imalink-core
+  async processImageWithCore(file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Send to core.imalink.com for processing
+    const response = await fetch('https://core.imalink.com/api/v1/photos/create', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Core processing failed: ${error}`);
+    }
+
+    return response.json();
+  }
+
+  async createPhoto(photoSchema: any, tags: string[] = []): Promise<Photo> {
+    const response = await fetch(`${this.baseUrl}/photos/create`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({
+        photo_create_schema: photoSchema,
+        tags: tags,
+      }),
+    });
+
+    return this.handleResponse<Photo>(response);
+  }
 }
 
 // Export a singleton instance
