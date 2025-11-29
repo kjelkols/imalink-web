@@ -200,7 +200,7 @@ class ApiClient {
 
   // Photo preview URLs
   getHotPreviewUrl(hothash: string): string {
-    return `${this.baseUrl}/photos/${hothash}/hotpreview/`;
+    return `${this.baseUrl}/photos/${hothash}/hotpreview`;
   }
 
   getColdPreviewUrl(hothash: string, width?: number, height?: number): string {
@@ -208,7 +208,7 @@ class ApiClient {
     if (width) params.append('width', width.toString());
     if (height) params.append('height', height.toString());
     const query = params.toString();
-    return `${this.baseUrl}/photos/${hothash}/coldpreview/${query ? '?' + query : ''}`;
+    return `${this.baseUrl}/photos/${hothash}/coldpreview${query ? '?' + query : ''}`;
   }
 
   /**
