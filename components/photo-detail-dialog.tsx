@@ -520,69 +520,52 @@ export function PhotoDetailDialog({
             <Separator />
 
             {/* Camera & EXIF Information */}
-            {photo.exif_dict && typeof photo.exif_dict === 'object' && Object.keys(photo.exif_dict).length > 0 ? (
-              <>
-                <div>
-                  <Label className="flex items-center gap-2 mb-3">
-                    <Camera className="h-4 w-4" />
-                    Kamerainformasjon
-                  </Label>
-                  <div className="space-y-2 text-sm">
-                    {(photo.exif_dict as any).camera_make && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Kamera:</span>
-                        <span>{(photo.exif_dict as any).camera_make} {(photo.exif_dict as any).camera_model}</span>
-                      </div>
-                    )}
-                    {(photo.exif_dict as any).lens_model && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Objektiv:</span>
-                        <span className="text-xs">{(photo.exif_dict as any).lens_model}</span>
-                      </div>
-                    )}
-                    {(photo.exif_dict as any).iso && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">ISO:</span>
-                        <span>{(photo.exif_dict as any).iso}</span>
-                      </div>
-                    )}
-                    {(photo.exif_dict as any).f_number && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Blenderåpning:</span>
-                        <span>f/{(photo.exif_dict as any).f_number}</span>
-                      </div>
-                    )}
-                    {(photo.exif_dict as any).exposure_time && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Lukkertid:</span>
-                        <span>{(photo.exif_dict as any).exposure_time}s</span>
-                      </div>
-                    )}
-                    {(photo.exif_dict as any).focal_length && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Brennvidde:</span>
-                        <span>{(photo.exif_dict as any).focal_length}mm</span>
-                      </div>
-                    )}
-                  </div>
+            <div>
+              <Label className="flex items-center gap-2 mb-3">
+                <Camera className="h-4 w-4" />
+                EXIF-informasjon
+              </Label>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Kamera:</span>
+                  <span className="text-right">
+                    {(photo.exif_dict as any)?.camera_make && (photo.exif_dict as any)?.camera_model
+                      ? `${(photo.exif_dict as any).camera_make} ${(photo.exif_dict as any).camera_model}`
+                      : 'None'}
+                  </span>
                 </div>
-                <Separator />
-              </>
-            ) : (
-              <>
-                <div>
-                  <Label className="flex items-center gap-2 mb-3">
-                    <Camera className="h-4 w-4" />
-                    Kamerainformasjon
-                  </Label>
-                  <div className="text-sm text-muted-foreground">
-                    <p>Ingen EXIF-data tilgjengelig</p>
-                    {photo.exif_dict === null && <p className="text-xs mt-1">(exif_dict er null)</p>}
-                  </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Objektiv:</span>
+                  <span className="text-right text-xs">
+                    {(photo.exif_dict as any)?.lens_model || 'None'}
+                  </span>
                 </div>
-                <Separator />
-              </>
-            )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">ISO:</span>
+                  <span>{(photo.exif_dict as any)?.iso || 'None'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Blenderåpning:</span>
+                  <span>
+                    {(photo.exif_dict as any)?.f_number ? `f/${(photo.exif_dict as any).f_number}` : 'None'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Lukkertid:</span>
+                  <span>
+                    {(photo.exif_dict as any)?.exposure_time ? `${(photo.exif_dict as any).exposure_time}s` : 'None'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Brennvidde:</span>
+                  <span>
+                    {(photo.exif_dict as any)?.focal_length ? `${(photo.exif_dict as any).focal_length}mm` : 'None'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
 
             {/* Metadata Info */}
             <div>
