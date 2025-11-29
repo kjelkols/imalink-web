@@ -649,9 +649,10 @@ class ApiClient {
   }
 
   // Photo import with imalink-core
-  async processImageWithCore(file: File): Promise<any> {
+  async processImageWithCore(file: File, coldpreviewSize: number = 800): Promise<any> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('coldpreview_size', coldpreviewSize.toString());
 
     // Send directly to core.trollfjell.com
     const response = await fetch('https://core.trollfjell.com/v1/process', {
