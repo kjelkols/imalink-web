@@ -520,7 +520,7 @@ export function PhotoDetailDialog({
             <Separator />
 
             {/* Camera & EXIF Information */}
-            {photo.exif_dict && typeof photo.exif_dict === 'object' && Object.keys(photo.exif_dict).length > 0 && (
+            {photo.exif_dict && typeof photo.exif_dict === 'object' && Object.keys(photo.exif_dict).length > 0 ? (
               <>
                 <div>
                   <Label className="flex items-center gap-2 mb-3">
@@ -564,6 +564,20 @@ export function PhotoDetailDialog({
                         <span>{(photo.exif_dict as any).focal_length}mm</span>
                       </div>
                     )}
+                  </div>
+                </div>
+                <Separator />
+              </>
+            ) : (
+              <>
+                <div>
+                  <Label className="flex items-center gap-2 mb-3">
+                    <Camera className="h-4 w-4" />
+                    Kamerainformasjon
+                  </Label>
+                  <div className="text-sm text-muted-foreground">
+                    <p>Ingen EXIF-data tilgjengelig</p>
+                    {photo.exif_dict === null && <p className="text-xs mt-1">(exif_dict er null)</p>}
                   </div>
                 </div>
                 <Separator />
