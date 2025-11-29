@@ -16,7 +16,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Star, MapPin, Calendar, Tag as TagIcon, Save, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { VisibilityBadge } from '@/components/visibility-badge';
+import { Star, MapPin, Calendar, Tag as TagIcon, Save, ZoomIn, ZoomOut, Maximize2, Camera, FileText, Eye, Hash, Folder } from 'lucide-react';
 
 interface PhotoDetailDialogProps {
   photo: PhotoWithTags | null;
@@ -38,6 +39,7 @@ export function PhotoDetailDialog({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
+  const [category, setCategory] = useState('');
   const [stack, setStack] = useState<PhotoStack | null>(null);
   const [saving, setSaving] = useState(false);
   const [coldPreviewUrl, setColdPreviewUrl] = useState<string | null>(null);
@@ -55,6 +57,7 @@ export function PhotoDetailDialog({
       setTags(photo.tags?.map(t => t.name) || []);
       setLatitude(photo.gps_latitude?.toString() || '');
       setLongitude(photo.gps_longitude?.toString() || '');
+      setCategory(photo.category || '');
       
       // Reset zoom and position
       setZoom(1);
@@ -115,9 +118,10 @@ export function PhotoDetailDialog({
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Update rating
+      // Update rating and category
       const metadata: Partial<PhotoUpdate> = {
         rating: rating || null,
+        category: category || null,
       };
 
       const updatedPhoto = await apiClient.updatePhotoMetadata(photo.hothash, metadata);
@@ -470,23 +474,133 @@ export function PhotoDetailDialog({
 
             <Separator />
 
+            {/* Category */}
+            <div>
+              <Label className="flex items-center gap-2 mb-2">
+                <Folder className="h-4 w-4" />
+                Kategori
+              </Label>
+              <Input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="F.eks. Natur, Portrett, Arkitektur..."
+              />
+            </div>
+
+            <Separator />
+
+            {/* File Information */}
+            <div>
+              <Label className="flex items-center gap-2 mb-3">
+                <FileText className="h-4 w-4" />
+                Filinformasjon
+              </Label>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Filnavn:</span>
+                  <span className="font-mono text-xs">{displayName}</span>
+                </div>
+                {primaryFile?.file_size && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Størrelse:</span>
+                    <span>{(primaryFile.file_size / 1024 / 1024).toFixed(2)} MB</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Dimensjoner:</span>
+                  <span>{photo.width} × {photo.height} px</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Synlighet:</span>
+                  <VisibilityBadge visibility={photo.visibility as any} />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Camera & EXIF Information */}
+            {photo.exif_dict && typeof photo.exif_dict === 'object' && Object.keys(photo.exif_dict).length > 0 && (
+              <>
+                <div>
+                  <Label className="flex items-center gap-2 mb-3">
+                    <Camera className="h-4 w-4" />
+                    Kamerainformasjon
+                  </Label>
+                  <div className="space-y-2 text-sm">
+                    {(photo.exif_dict as any).camera_make && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Kamera:</span>
+                        <span>{(photo.exif_dict as any).camera_make} {(photo.exif_dict as any).camera_model}</span>
+                      </div>
+                    )}
+                    {(photo.exif_dict as any).lens_model && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Objektiv:</span>
+                        <span className="text-xs">{(photo.exif_dict as any).lens_model}</span>
+                      </div>
+                    )}
+                    {(photo.exif_dict as any).iso && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">ISO:</span>
+                        <span>{(photo.exif_dict as any).iso}</span>
+                      </div>
+                    )}
+                    {(photo.exif_dict as any).f_number && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Blenderåpning:</span>
+                        <span>f/{(photo.exif_dict as any).f_number}</span>
+                      </div>
+                    )}
+                    {(photo.exif_dict as any).exposure_time && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Lukkertid:</span>
+                        <span>{(photo.exif_dict as any).exposure_time}s</span>
+                      </div>
+                    )}
+                    {(photo.exif_dict as any).focal_length && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Brennvidde:</span>
+                        <span>{(photo.exif_dict as any).focal_length}mm</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <Separator />
+              </>
+            )}
+
             {/* Metadata Info */}
-            <div className="space-y-2 text-sm text-muted-foreground">
-              {photo.taken_at && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    {new Date(photo.taken_at).toLocaleDateString('no-NO', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+            <div>
+              <Label className="flex items-center gap-2 mb-3">
+                <Hash className="h-4 w-4" />
+                Metadata
+              </Label>
+              <div className="space-y-2 text-sm">
+                {photo.taken_at && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tatt:</span>
+                    <span>
+                      {new Date(photo.taken_at).toLocaleDateString('no-NO', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Hothash:</span>
+                  <span className="font-mono text-xs truncate max-w-[200px]" title={photo.hothash}>
+                    {photo.hothash.substring(0, 16)}...
                   </span>
                 </div>
-              )}
+              </div>
             </div>
+
+            <Separator />
 
             {/* Save Button */}
             <Button onClick={handleSave} disabled={saving} className="w-full">
