@@ -42,6 +42,7 @@ export function PhotoDetailDialog({
   const [saving, setSaving] = useState(false);
   const [coldPreviewUrl, setColdPreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -58,6 +59,7 @@ export function PhotoDetailDialog({
       // Reset zoom and position
       setZoom(1);
       setPosition({ x: 0, y: 0 });
+      setPreviewError(null);
       
       // Fetch coldpreview with authentication
       loadColdPreview(photo.hothash);
@@ -73,6 +75,8 @@ export function PhotoDetailDialog({
 
   const loadColdPreview = async (hothash: string) => {
     setLoadingPreview(true);
+    setPreviewError(null);
+    
     try {
       // Try coldpreview first
       const coldResponse = await fetch(apiClient.getColdPreviewUrl(hothash), {
@@ -86,24 +90,20 @@ export function PhotoDetailDialog({
         const url = URL.createObjectURL(blob);
         setColdPreviewUrl(url);
       } else {
-        console.warn('Coldpreview not available (status:', coldResponse.status, '), falling back to hotpreview');
-        
-        // Fallback to hotpreview if coldpreview fails
-        const hotResponse = await fetch(apiClient.getHotPreviewUrl(hothash), {
-          headers: {
-            'Authorization': `Bearer ${apiClient.getToken()}`,
-          },
-        });
-
-        if (hotResponse.ok) {
-          const blob = await hotResponse.blob();
-          const url = URL.createObjectURL(blob);
-          setColdPreviewUrl(url);
-        } else {
-          console.error('Failed to load both coldpreview and hotpreview');
+        // Get error message from response
+        let errorMessage = `HTTP ${coldResponse.status}`;
+        try {
+          const errorData = await coldResponse.json();
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch {
+          errorMessage = `${errorMessage} ${coldResponse.statusText}`;
         }
+        
+        setPreviewError(`Kunne ikke laste coldpreview: ${errorMessage}`);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Ukjent feil';
+      setPreviewError(`Feil ved lasting av coldpreview: ${errorMessage}`);
       console.error('Error loading preview:', error);
     } finally {
       setLoadingPreview(false);
@@ -264,6 +264,13 @@ export function PhotoDetailDialog({
                 <div className="flex items-center justify-center h-full">
                   <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" />
                 </div>
+              ) : previewError ? (
+                <div className="flex items-center justify-center h-full p-8">
+                  <div className="text-center space-y-2">
+                    <p className="text-destructive font-semibold">Kunne ikke laste bilde</p>
+                    <p className="text-sm text-muted-foreground">{previewError}</p>
+                  </div>
+                </div>
               ) : coldPreviewUrl ? (
                 <div 
                   style={{
@@ -285,7 +292,7 @@ export function PhotoDetailDialog({
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Failed to load preview
+                  Venter på bilde...
                 </div>
               )}
             </div>
