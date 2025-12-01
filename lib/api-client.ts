@@ -14,8 +14,8 @@ import type {
   Collection,
   CollectionCreate,
   CollectionUpdate,
-  ImportSession,
-  ImportSessionUpdate,
+  InputChannel,
+  InputChannelUpdate,
   PhotoTextDocument,
   PhotoTextDocumentSummary,
   PhotoTextDocumentCreate,
@@ -502,35 +502,35 @@ class ApiClient {
     return this.handleResponse<Photo[]>(response);
   }
 
-  // Import Sessions
-  async getImportSessions(offset: number = 0, limit: number = 100): Promise<{ sessions: ImportSession[]; total: number }> {
+  // Input Channels
+  async getInputChannels(offset: number = 0, limit: number = 100): Promise<{ channels: InputChannel[]; total: number }> {
     const params = new URLSearchParams();
     params.append('offset', offset.toString());
     params.append('limit', limit.toString());
     
-    const response = await fetch(`${this.baseUrl}/import-sessions?${params.toString()}`, {
+    const response = await fetch(`${this.baseUrl}/input-channels?${params.toString()}`, {
       headers: this.getHeaders(),
     });
 
-    return this.handleResponse<{ sessions: ImportSession[]; total: number }>(response);
+    return this.handleResponse<{ channels: InputChannel[]; total: number }>(response);
   }
 
-  async getImportSession(id: number): Promise<ImportSession> {
-    const response = await fetch(`${this.baseUrl}/import-sessions/${id}`, {
+  async getInputChannel(id: number): Promise<InputChannel> {
+    const response = await fetch(`${this.baseUrl}/input-channels/${id}`, {
       headers: this.getHeaders(),
     });
 
-    return this.handleResponse<ImportSession>(response);
+    return this.handleResponse<InputChannel>(response);
   }
 
-  async updateImportSession(id: number, data: ImportSessionUpdate): Promise<ImportSession> {
-    const response = await fetch(`${this.baseUrl}/import-sessions/${id}`, {
+  async updateInputChannel(id: number, data: InputChannelUpdate): Promise<InputChannel> {
+    const response = await fetch(`${this.baseUrl}/input-channels/${id}`, {
       method: 'PATCH',
       headers: this.getHeaders(),
       body: JSON.stringify(data),
     });
-
-    return this.handleResponse<ImportSession>(response);
+    
+    return this.handleResponse<InputChannel>(response);
   }
 
   // PhotoText Documents

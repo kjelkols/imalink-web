@@ -31,7 +31,7 @@ interface PhotoCreateSchema {
   }>;
   rating: number;
   visibility: string;
-  import_session_id?: number | null;
+  input_channel_id?: number | null;
   author_id?: number | null;
   category?: string | null;
   stack_id?: number | null;

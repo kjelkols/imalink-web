@@ -60,8 +60,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       icon: Upload,
     },
     {
-      label: 'Importer',
-      href: '/import-sessions',
+      label: 'Input Channels',
+      href: '/input-channels',
       icon: Package,
     },
   ];

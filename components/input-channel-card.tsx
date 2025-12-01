@@ -1,15 +1,15 @@
 'use client';
 
-import { ImportSession } from '@/lib/types';
+import { InputChannel } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, Image as ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-interface ImportSessionCardProps {
-  session: ImportSession;
+interface InputChannelCardProps {
+  channel: InputChannel;
 }
 
-export function ImportSessionCard({ session }: ImportSessionCardProps) {
+export function InputChannelCard({ channel }: InputChannelCardProps) {
   const router = useRouter();
 
   const formatDate = (dateString: string) => {
@@ -26,7 +26,7 @@ export function ImportSessionCard({ session }: ImportSessionCardProps) {
   return (
     <Card
       className="cursor-pointer hover:shadow-lg transition-shadow"
-      onClick={() => router.push(`/import-sessions/${session.id}`)}
+      onClick={() => router.push(`/input-channels/${channel.id}`)}
     >
       <CardContent className="p-6">
         <div className="space-y-4">
@@ -34,11 +34,11 @@ export function ImportSessionCard({ session }: ImportSessionCardProps) {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h3 className="font-semibold text-lg line-clamp-1">
-                {session.title || `Import #${session.id}`}
+                {channel.title || `Kanal #${channel.id}`}
               </h3>
-              {session.description && (
+              {channel.description && (
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                  {session.description}
+                  {channel.description}
                 </p>
               )}
             </div>
@@ -48,11 +48,11 @@ export function ImportSessionCard({ session }: ImportSessionCardProps) {
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              <span>{formatDate(session.imported_at)}</span>
+              <span>{formatDate(channel.imported_at)}</span>
             </div>
             <div className="flex items-center gap-1">
               <ImageIcon className="h-4 w-4" />
-              <span>{session.images_count} bilder</span>
+              <span>{channel.images_count} bilder</span>
             </div>
           </div>
         </div>

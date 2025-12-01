@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ImportSession, ImportSessionUpdate } from '@/lib/types';
+import { InputChannel, InputChannelUpdate } from '@/lib/types';
 import {
   Dialog,
   DialogContent,
@@ -13,50 +13,50 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-interface EditImportSessionDialogProps {
-  session: ImportSession | null;
+interface EditInputChannelDialogProps {
+  channel: InputChannel | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (id: number, data: ImportSessionUpdate) => Promise<void>;
+  onSave: (id: number, data: InputChannelUpdate) => Promise<void>;
 }
 
-export function EditImportSessionDialog({
-  session,
+export function EditInputChannelDialog({
+  channel,
   open,
   onOpenChange,
   onSave,
-}: EditImportSessionDialogProps) {
+}: EditInputChannelDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // Update state when session changes
+  // Update state when channel changes
   useState(() => {
-    if (session) {
-      setTitle(session.title || '');
-      setDescription(session.description || '');
+    if (channel) {
+      setTitle(channel.title || '');
+      setDescription(channel.description || '');
     }
   });
 
   const handleSave = async () => {
-    if (!session) return;
+    if (!channel) return;
 
     setSaving(true);
     try {
-      await onSave(session.id, {
+      await onSave(channel.id, {
         title: title.trim() || null,
         description: description.trim() || null,
       });
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to update import session:', error);
+      console.error('Failed to update input channel:', error);
       alert(`Kunne ikke lagre: ${error instanceof Error ? error.message : 'Ukjent feil'}`);
     } finally {
       setSaving(false);
     }
   };
 
-  if (!session) return null;
+  if (!channel) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,7 +64,7 @@ export function EditImportSessionDialog({
         <DialogHeader>
           <DialogTitle>Rediger Import</DialogTitle>
           <DialogDescription>
-            Oppdater tittel og beskrivelse for denne importøkten
+            Oppdater tittel og beskrivelse for denne kanalen
           </DialogDescription>
         </DialogHeader>
 
@@ -75,7 +75,7 @@ export function EditImportSessionDialog({
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={`Import #${session.id}`}
+              placeholder={`Import #${channel.id}`}
             />
           </div>
 
