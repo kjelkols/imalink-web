@@ -136,44 +136,18 @@ export const VISIBILITY_LEVELS: { value: VisibilityLevel; label: string; descrip
 
 // ===== Timeline Types =====
 
-export interface TimelineYearNode {
-  year: number;
-  count: number;
-  first_photo: string; // hothash
-}
+export type TimelineBucket = components['schemas']['TimelineBucket'];
+export type TimelineResponse = components['schemas']['TimelineResponse'];
+export type TimelineMeta = components['schemas']['TimelineMeta'];
+export type DateRange = components['schemas']['DateRange'];
 
-export interface TimelineMonthNode {
-  month: number; // 1-12
-  count: number;
-  first_photo: string;
-}
+export type TimelineGranularity = 'year' | 'month' | 'day' | 'hour';
 
-export interface TimelineDayNode {
-  day: number; // 1-31
-  count: number;
-  first_photo: string;
-}
-
-export interface TimelineHourNode {
-  hour: number; // 0-23
-  count: number;
-  first_photo: string;
-}
-
-export interface TimelineYearsResponse {
-  years: TimelineYearNode[];
-}
-
-export interface TimelineMonthsResponse {
-  months: TimelineMonthNode[];
-}
-
-export interface TimelineDaysResponse {
-  days: TimelineDayNode[];
-}
-
-export interface TimelineHoursResponse {
-  hours: TimelineHourNode[];
+export interface TimelineParams {
+  granularity?: TimelineGranularity;
+  year?: number | null;
+  month?: number | null;
+  day?: number | null;
 }
 
 // ===== Utility Types =====

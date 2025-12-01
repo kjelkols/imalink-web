@@ -7,9 +7,7 @@ import { apiClient } from '@/lib/api-client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { 
-  TimelineMonthNode, 
-  TimelineDayNode, 
-  TimelineHourNode,
+  TimelineBucket,
   Photo 
 } from '@/lib/types';
 
@@ -21,15 +19,15 @@ interface TimelineYearProps {
 
 export function TimelineYear({ year, count, firstPhoto }: TimelineYearProps) {
   const [expanded, setExpanded] = useState(false);
-  const [months, setMonths] = useState<TimelineMonthNode[]>([]);
+  const [months, setMonths] = useState<TimelineBucket[]>([]);
   const [loading, setLoading] = useState(false);
 
   const toggleExpand = async () => {
     if (!expanded && months.length === 0) {
       setLoading(true);
       try {
-        const data = await apiClient.getTimelineMonths(year);
-        setMonths(data.months);
+        const response = await apiClient.getTimeline({ granularity: 'month', year });
+        setMonths(response.data);
       } catch (error) {
         console.error('Failed to load months:', error);
       } finally {
@@ -83,13 +81,13 @@ export function TimelineYear({ year, count, firstPhoto }: TimelineYearProps) {
             <div className="text-sm text-muted-foreground py-4">Loading months...</div>
           ) : (
             <div className="space-y-1">
-              {months.map((month) => (
+              {months.map((bucket) => (
                 <TimelineMonth
-                  key={month.month}
+                  key={bucket.month}
                   year={year}
-                  month={month.month}
-                  count={month.count}
-                  firstPhoto={month.first_photo}
+                  month={bucket.month!}
+                  count={bucket.count}
+                  firstPhoto={bucket.preview_hothash}
                 />
               ))}
             </div>
@@ -109,15 +107,15 @@ interface TimelineMonthProps {
 
 function TimelineMonth({ year, month, count, firstPhoto }: TimelineMonthProps) {
   const [expanded, setExpanded] = useState(false);
-  const [days, setDays] = useState<TimelineDayNode[]>([]);
+  const [days, setDays] = useState<TimelineBucket[]>([]);
   const [loading, setLoading] = useState(false);
 
   const toggleExpand = async () => {
     if (!expanded && days.length === 0) {
       setLoading(true);
       try {
-        const data = await apiClient.getTimelineDays(year, month);
-        setDays(data.days);
+        const response = await apiClient.getTimeline({ granularity: 'day', year, month });
+        setDays(response.data);
       } catch (error) {
         console.error('Failed to load days:', error);
       } finally {
@@ -171,14 +169,14 @@ function TimelineMonth({ year, month, count, firstPhoto }: TimelineMonthProps) {
           {loading ? (
             <div className="text-xs text-muted-foreground py-2">Loading days...</div>
           ) : (
-            days.map((day) => (
+            days.map((bucket) => (
               <TimelineDay
-                key={day.day}
+                key={bucket.day}
                 year={year}
                 month={month}
-                day={day.day}
-                count={day.count}
-                firstPhoto={day.first_photo}
+                day={bucket.day!}
+                count={bucket.count}
+                firstPhoto={bucket.preview_hothash}
               />
             ))
           )}
@@ -198,15 +196,15 @@ interface TimelineDayProps {
 
 function TimelineDay({ year, month, day, count, firstPhoto }: TimelineDayProps) {
   const [expanded, setExpanded] = useState(false);
-  const [hours, setHours] = useState<TimelineHourNode[]>([]);
+  const [hours, setHours] = useState<TimelineBucket[]>([]);
   const [loading, setLoading] = useState(false);
 
   const toggleExpand = async () => {
     if (!expanded && hours.length === 0) {
       setLoading(true);
       try {
-        const data = await apiClient.getTimelineHours(year, month, day);
-        setHours(data.hours);
+        const response = await apiClient.getTimeline({ granularity: 'hour', year, month, day });
+        setHours(response.data);
       } catch (error) {
         console.error('Failed to load hours:', error);
       } finally {
@@ -262,15 +260,15 @@ function TimelineDay({ year, month, day, count, firstPhoto }: TimelineDayProps) 
           {loading ? (
             <div className="text-xs text-muted-foreground py-2">Loading hours...</div>
           ) : (
-            hours.map((hour) => (
+            hours.map((bucket) => (
               <TimelineHour
-                key={hour.hour}
+                key={bucket.hour}
                 year={year}
                 month={month}
                 day={day}
-                hour={hour.hour}
-                count={hour.count}
-                firstPhoto={hour.first_photo}
+                hour={bucket.hour!}
+                count={bucket.count}
+                firstPhoto={bucket.preview_hothash}
               />
             ))
           )}
@@ -298,7 +296,17 @@ function TimelineHour({ year, month, day, hour, count, firstPhoto }: TimelineHou
     if (!expanded && photos.length === 0) {
       setLoading(true);
       try {
-        const data = await apiClient.getTimelinePhotos(year, month, day, hour);
+        // Search for photos in this specific hour
+        const startDate = new Date(year, month - 1, day, hour, 0, 0);
+        const endDate = new Date(year, month - 1, day, hour, 59, 59);
+        const data = await apiClient.searchPhotos({
+          taken_after: startDate.toISOString(),
+          taken_before: endDate.toISOString(),
+          offset: 0,
+          limit: 100,
+          sort_by: 'taken_at',
+          sort_order: 'asc'
+        });
         setPhotos(data.data);
       } catch (error) {
         console.error('Failed to load photos:', error);

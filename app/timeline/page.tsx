@@ -4,23 +4,19 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TimelineYear } from '@/components/timeline/timeline-nodes';
 import { apiClient } from '@/lib/api-client';
-import type { TimelineYearNode } from '@/lib/types';
+import type { TimelineBucket } from '@/lib/types';
 
 export default function TimelinePage() {
   const [loading, setLoading] = useState(true);
-  const [years, setYears] = useState<TimelineYearNode[]>([]);
+  const [years, setYears] = useState<TimelineBucket[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadYears() {
       try {
         setLoading(true);
-        const currentYear = new Date().getFullYear();
-        const data = await apiClient.getTimelineYears({
-          from_year: 1990,
-          to_year: currentYear,
-        });
-        setYears(data.years);
+        const response = await apiClient.getTimeline({ granularity: 'year' });
+        setYears(response.data);
       } catch (err) {
         console.error('Failed to load timeline years:', err);
         setError('Failed to load timeline. Please try again.');
@@ -60,12 +56,12 @@ export default function TimelinePage() {
             </div>
           ) : (
             <div className="divide-y">
-              {years.map((year) => (
+              {years.map((bucket) => (
                 <TimelineYear
-                  key={year.year}
-                  year={year.year}
-                  count={year.count}
-                  firstPhoto={year.first_photo}
+                  key={bucket.year}
+                  year={bucket.year}
+                  count={bucket.count}
+                  firstPhoto={bucket.preview_hothash}
                 />
               ))}
             </div>
