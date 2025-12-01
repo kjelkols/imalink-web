@@ -20,16 +20,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for token from desktop app in URL hash
+    const handleDesktopAppToken = () => {
+      if (typeof window !== 'undefined' && window.location.hash.startsWith('#token=')) {
+        const token = window.location.hash.substring(7); // Remove '#token='
+        if (token) {
+          console.log('Received authentication token from desktop app');
+          apiClient.setToken(token);
+          // Clear token from URL for security
+          window.location.hash = '';
+          return true;
+        }
+      }
+      return false;
+    };
+
     // Check if user is already logged in
     const checkAuth = async () => {
+      // First, check for desktop app token
+      const hasDesktopToken = handleDesktopAppToken();
+      
       const token = apiClient.getToken();
       if (token) {
         try {
           const currentUser = await apiClient.getCurrentUser();
           setUser(currentUser);
+          
+          if (hasDesktopToken) {
+            console.log('Successfully authenticated via desktop app');
+          }
         } catch (error) {
-          console.error('Failed to fetch user:', error);
+          console.error('Failed to authenticate:', error);
+          // Clear invalid token
           apiClient.logout();
+          
+          if (hasDesktopToken) {
+            console.error('Desktop app token was invalid or expired');
+          }
         }
       }
       setLoading(false);
