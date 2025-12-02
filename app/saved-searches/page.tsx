@@ -28,23 +28,21 @@ export default function SavedSearchesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Lagrede søk</h1>
-          <p className="mt-2 text-muted-foreground">
-            Smart album som oppdateres automatisk basert på søkekriterier
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Lagrede søk</h1>
+        <p className="mt-2 text-muted-foreground">
+          Smart album som oppdateres automatisk basert på søkekriterier
+        </p>
+      </div>
 
-        {/* Coming soon state */}
-        <div className="flex flex-col items-center justify-center py-12">
-          <Search className="mb-4 h-16 w-16 text-muted-foreground/30" />
-          <h2 className="mb-2 text-xl font-semibold">Kommer snart</h2>
-          <p className="text-center text-muted-foreground">
-            Funksjonen for lagrede søk er under utvikling
-          </p>
-        </div>
+      {/* Coming soon state */}
+      <div className="flex flex-col items-center justify-center py-12">
+        <Search className="mb-4 h-16 w-16 text-muted-foreground/30" />
+        <h2 className="mb-2 text-xl font-semibold">Kommer snart</h2>
+        <p className="text-center text-muted-foreground">
+          Funksjonen for lagrede søk er under utvikling
+        </p>
       </div>
     </div>
   );

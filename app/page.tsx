@@ -84,8 +84,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      {/* Main Content */}
+    <>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">Bildegalleri</h1>
@@ -127,6 +126,6 @@ export default function Home() {
         onOpenChange={setShowPhotoDetail}
         onPhotoUpdated={handlePhotoUpdated}
       />
-    </div>
+    </>
   );
 }

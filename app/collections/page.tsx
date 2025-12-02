@@ -64,10 +64,9 @@ export default function CollectionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Mine samlinger</h1>
             <p className="mt-2 text-muted-foreground">
@@ -123,12 +122,11 @@ export default function CollectionsPage() {
       )}
 
         {/* Create dialog */}
-        <CreateCollectionDialog
-          open={showCreateDialog}
-          onOpenChange={setShowCreateDialog}
-          onCollectionCreated={handleCollectionCreated}
-        />
-      </div>
+      <CreateCollectionDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCollectionCreated={handleCollectionCreated}
+      />
     </div>
   );
 }

@@ -165,29 +165,26 @@ export default function EventDetailPage() {
 
   if (error || !event) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-        <div className="container mx-auto px-4 py-8">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="mb-6"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake
-          </Button>
-          
-          <div className="rounded-md bg-destructive/15 p-4 text-destructive">
-            {error || 'Event ikke funnet'}
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Tilbake
+        </Button>
+        
+        <div className="rounded-md bg-destructive/15 p-4 text-destructive">
+          {error || 'Event ikke funnet'}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
+    <div className="container mx-auto px-4 py-8">
+      {/* Breadcrumb */}
         <div className="mb-6">
           <EventBreadcrumb eventId={eventId} currentEventName={event.name} />
         </div>
@@ -380,13 +377,12 @@ export default function EventDetailPage() {
                 onClick={handleDelete}
                 disabled={deleting}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                {deleting ? 'Sletter...' : 'Slett'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+            >
+              {deleting ? 'Sletter...' : 'Slett'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

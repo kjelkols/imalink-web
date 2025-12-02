@@ -214,10 +214,9 @@ export default function CollectionDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
           <Button
             variant="ghost"
             onClick={handleBack}
@@ -366,11 +365,10 @@ export default function CollectionDetailPage() {
 
         {/* Photo detail dialog */}
         <PhotoDetailDialog
-          photo={selectedPhoto}
-          open={showPhotoDetail}
-          onOpenChange={setShowPhotoDetail}
-        />
-      </div>
+        photo={selectedPhoto}
+        open={showPhotoDetail}
+        onOpenChange={setShowPhotoDetail}
+      />
     </div>
   );
 }
