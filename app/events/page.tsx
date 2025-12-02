@@ -22,44 +22,34 @@ export default function EventsPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
-    console.log('Events page - isAuthenticated:', isAuthenticated, 'authLoading:', authLoading);
     if (isAuthenticated) {
-      console.log('Loading events data...');
       loadData();
-    } else if (!authLoading) {
-      console.log('Not authenticated and not loading');
     }
-  }, [isAuthenticated, viewMode, authLoading]);
+  }, [isAuthenticated, viewMode]);
 
   const loadData = async () => {
-    console.log('loadData called, viewMode:', viewMode);
     setLoading(true);
     setError(null);
 
     try {
       if (viewMode === 'list') {
-        console.log('Loading events list...');
         // Load root events only for list view
         const data = await apiClient.getEvents();
-        console.log('Events loaded successfully:', data.length, 'events');
         setEvents(data);
       } else {
-        console.log('Loading events tree...');
         // Load full tree for tree view
         const treeData = await apiClient.getEventTree();
-        console.log('Event tree loaded successfully:', treeData.events.length, 'root events');
         setEventTree(treeData.events);
       }
     } catch (err) {
-      console.error('Failed to load events - full error:', err);
+      console.error('Failed to load events:', err);
       const errorMessage = err instanceof Error ? err.message : 'Kunne ikke laste events';
-      console.error('Error message:', errorMessage);
       
       // More helpful error messages
       if (errorMessage.includes('Failed to fetch')) {
-        setError('Kunne ikke koble til API. Sjekk at du er logget inn og at backend kjører.');
-      } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-        setError('Ikke autentisert. Vennligst logg inn på nytt.');
+        setError('Kunne ikke koble til API. Sjekk nettverksforbindelsen.');
+      } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized') || errorMessage.includes('Invalid authentication token')) {
+        setError('Din sesjon er utgått. Vennligst logg inn på nytt.');
       } else {
         setError(errorMessage);
       }
@@ -107,7 +97,15 @@ export default function EventsPage() {
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Du må være logget inn</h1>
-          <p className="mt-2 text-muted-foreground">Logg inn for å se dine events</p>
+          <p className="mt-2 text-muted-foreground">
+            Logg inn for å se dine events
+          </p>
+          <Button
+            onClick={() => router.push('/')}
+            className="mt-4"
+          >
+            Gå til login
+          </Button>
         </div>
       </div>
     );
