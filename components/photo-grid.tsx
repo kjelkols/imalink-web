@@ -6,9 +6,10 @@ import type { PhotoWithTags, ExtendedSearchParams } from '@/lib/types';
 import { usePhotoStore, PHOTO_DISPLAY_CONFIGS } from '@/lib/photo-store';
 import { PhotoCard } from './photo-card';
 import { AddToCollectionDialog } from './add-to-collection-dialog';
+import { AddToEventDialog } from './add-to-event-dialog';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Grid2X2, Grid3X3, LayoutGrid, List, CheckSquare, Square, FolderPlus, X } from 'lucide-react';
+import { Grid2X2, Grid3X3, LayoutGrid, List, CheckSquare, Square, FolderPlus, CalendarDays, X } from 'lucide-react';
 
 interface PhotoGridProps {
   searchParams?: ExtendedSearchParams;
@@ -35,6 +36,7 @@ export function PhotoGrid({
   const [selectedPhotos, setSelectedPhotos] = useState<Set<string>>(new Set());
   const [processedPhotos, setProcessedPhotos] = useState<Set<string>>(new Set());
   const [showAddToCollection, setShowAddToCollection] = useState(false);
+  const [showAddToEvent, setShowAddToEvent] = useState(false);
   
   // Use photo store for caching and display settings
   const { addPhotos, displaySize, setDisplaySize } = usePhotoStore();
@@ -306,6 +308,14 @@ export function PhotoGrid({
               Add to Collection
             </Button>
             <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowAddToEvent(true)}
+            >
+              <CalendarDays className="mr-2 h-4 w-4" />
+              Add to Event
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={handleDeselectAll}
@@ -334,6 +344,14 @@ export function PhotoGrid({
       <AddToCollectionDialog
         open={showAddToCollection}
         onOpenChange={setShowAddToCollection}
+        photoHothashes={selectedUnprocessedPhotos}
+        onPhotosAdded={handlePhotosAdded}
+      />
+
+      {/* Add to Event Dialog */}
+      <AddToEventDialog
+        open={showAddToEvent}
+        onOpenChange={setShowAddToEvent}
         photoHothashes={selectedUnprocessedPhotos}
         onPhotosAdded={handlePhotosAdded}
       />

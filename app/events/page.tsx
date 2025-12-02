@@ -9,7 +9,6 @@ import { CreateEventDialog } from '@/components/create-event-dialog';
 import { EventTreeView } from '@/components/event-tree-view';
 import { Button } from '@/components/ui/button';
 import { Plus, List, TreePine, Calendar as CalendarIcon, MapPin, Images } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export default function EventsPage() {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -62,22 +61,6 @@ export default function EventsPage() {
   const handleEventCreated = () => {
     loadData();
     setShowCreateDialog(false);
-  };
-
-  const formatDateRange = (event: EventWithPhotos) => {
-    if (!event.start_date) return null;
-    
-    const formatDate = (dateString: string) => {
-      return new Date(dateString).toLocaleDateString('no-NO', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    };
-
-    const start = formatDate(event.start_date);
-    const end = event.end_date ? formatDate(event.end_date) : null;
-    return end && end !== start ? `${start} - ${end}` : start;
   };
 
 
@@ -207,20 +190,10 @@ export default function EventsPage() {
                   <span>{event.photo_count} bilder</span>
                 </div>
 
-                {(event.start_date || event.location_name) && (
-                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    {formatDateRange(event) && (
-                      <div className="flex items-center gap-1">
-                        <CalendarIcon className="h-3 w-3" />
-                        <span>{formatDateRange(event)}</span>
-                      </div>
-                    )}
-                    {event.location_name && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        <span>{event.location_name}</span>
-                      </div>
-                    )}
+                {event.location_name && (
+                  <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span>{event.location_name}</span>
                   </div>
                 )}
               </div>

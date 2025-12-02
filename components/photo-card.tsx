@@ -203,11 +203,6 @@ export function PhotoCard({
                     {photo.event.description && (
                       <p className="text-muted-foreground mt-1">{photo.event.description}</p>
                     )}
-                    {photo.event.start_date && (
-                      <p className="text-muted-foreground mt-1">
-                        {new Date(photo.event.start_date).toLocaleDateString('nb-NO')}
-                      </p>
-                    )}
                   </div>
                 </TooltipContent>
               </Tooltip>

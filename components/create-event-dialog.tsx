@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Calendar, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
 interface CreateEventDialogProps {
   open: boolean;
@@ -31,8 +31,6 @@ export function CreateEventDialog({
 }: CreateEventDialogProps) {
   const [name, setName] = useState(defaultName || '');
   const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
   const [locationName, setLocationName] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,8 +48,6 @@ export function CreateEventDialog({
       const data: EventCreate = {
         name: name.trim(),
         description: description.trim() || null,
-        start_date: startDate ? new Date(startDate).toISOString() : null,
-        end_date: endDate ? new Date(endDate).toISOString() : null,
         location_name: locationName.trim() || null,
       };
 
@@ -60,8 +56,6 @@ export function CreateEventDialog({
       // Reset form
       setName('');
       setDescription('');
-      setStartDate('');
-      setEndDate('');
       setLocationName('');
       onOpenChange(false);
       onEventCreated?.();
@@ -76,8 +70,6 @@ export function CreateEventDialog({
   const handleCancel = () => {
     setName('');
     setDescription('');
-    setStartDate('');
-    setEndDate('');
     setLocationName('');
     setError(null);
     onOpenChange(false);
@@ -128,37 +120,6 @@ export function CreateEventDialog({
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="start-date" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Startdato
-              </Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                disabled={creating}
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="end-date" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Sluttdato
-              </Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                disabled={creating}
-                min={startDate}
-              />
-            </div>
-          </div>
-
           <div className="grid gap-2">
             <Label htmlFor="location" className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
@@ -178,8 +139,8 @@ export function CreateEventDialog({
             <p className="font-medium mb-1">Tips:</p>
             <ul className="list-disc list-inside space-y-1">
               <li>Events kan ha under-events (f.eks. dager i en reise)</li>
-              <li>Bilder kan tilhøre flere events samtidig</li>
-              <li>Alle felter utenom navn er valgfrie</li>
+              <li>Ett foto kan bare være i ÉTT event</li>
+              <li>Beskrivelse kan inneholde datoer, sted, osv.</li>
             </ul>
           </div>
         </div>

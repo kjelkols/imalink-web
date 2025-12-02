@@ -27,7 +27,6 @@ export interface PhotoWithTags extends Omit<Photo, 'tags'> {
     id: number;
     name: string;
     description?: string | null;
-    start_date?: string | null;
   } | null; // Populated event details (when backend includes them)
 }
 
@@ -172,10 +171,6 @@ export interface Event {
   description: string | null;
   parent_event_id: number | null;
   
-  // Temporal context
-  start_date: string | null;  // ISO 8601
-  end_date: string | null;
-  
   // Spatial context
   location_name: string | null;
   gps_latitude: number | null;
@@ -208,8 +203,6 @@ export interface EventCreate {
   name: string;
   description?: string | null;
   parent_event_id?: number | null;
-  start_date?: string | null;
-  end_date?: string | null;
   location_name?: string | null;
   gps_latitude?: number | null;
   gps_longitude?: number | null;
@@ -220,8 +213,6 @@ export interface EventUpdate {
   name?: string;
   description?: string | null;
   parent_event_id?: number | null;
-  start_date?: string | null;
-  end_date?: string | null;
   location_name?: string | null;
   gps_latitude?: number | null;
   gps_longitude?: number | null;

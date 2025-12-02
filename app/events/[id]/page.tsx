@@ -114,22 +114,6 @@ export default function EventDetailPage() {
     setShowCreateChildDialog(false);
   };
 
-  const formatDateRange = (event: Event) => {
-    if (!event.start_date) return null;
-    
-    const formatDate = (dateString: string) => {
-      return new Date(dateString).toLocaleDateString('no-NO', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    };
-
-    const start = formatDate(event.start_date);
-    const end = event.end_date ? formatDate(event.end_date) : null;
-    return end && end !== start ? `${start} - ${end}` : start;
-  };
-
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -235,13 +219,6 @@ export default function EventDetailPage() {
           )}
 
           <div className="flex flex-wrap gap-4 text-sm">
-            {formatDateRange(event) && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <CalendarIcon className="h-4 w-4" />
-                <span>{formatDateRange(event)}</span>
-              </div>
-            )}
-            
             {event.location_name && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />

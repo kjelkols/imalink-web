@@ -47,22 +47,6 @@ function EventTreeNodeComponent({ node, level, onEventClick }: EventTreeNodeComp
   const [isExpanded, setIsExpanded] = useState(level < 2); // Auto-expand first 2 levels
   const hasChildren = node.children && node.children.length > 0;
 
-  const formatDateRange = (event: EventTreeNode) => {
-    if (!event.start_date) return null;
-    
-    const formatDate = (dateString: string) => {
-      return new Date(dateString).toLocaleDateString('no-NO', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    };
-
-    const start = formatDate(event.start_date);
-    const end = event.end_date ? formatDate(event.end_date) : null;
-    return end && end !== start ? `${start} - ${end}` : start;
-  };
-
   return (
     <div>
       <div
@@ -112,20 +96,10 @@ function EventTreeNodeComponent({ node, level, onEventClick }: EventTreeNodeComp
             </p>
           )}
 
-          {(node.start_date || node.location_name) && (
-            <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-              {formatDateRange(node) && (
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>{formatDateRange(node)}</span>
-                </div>
-              )}
-              {node.location_name && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span className="truncate max-w-[200px]">{node.location_name}</span>
-                </div>
-              )}
+          {node.location_name && (
+            <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              <span className="truncate max-w-[200px]">{node.location_name}</span>
             </div>
           )}
         </div>
