@@ -21,12 +21,6 @@ export default function EventsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadData();
-    }
-  }, [isAuthenticated, viewMode]);
-
   const loadData = async () => {
     setLoading(true);
     setError(null);
@@ -57,6 +51,13 @@ export default function EventsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, viewMode]);
 
   const handleEventCreated = () => {
     loadData();
