@@ -89,32 +89,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             </Link>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="flex-1 space-y-1 p-4">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href || 
-                              (item.href !== '/' && pathname.startsWith(item.href));
-              
-              return (
-                <Link key={item.href} href={item.href}>
-                  <Button
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    className={cn(
-                      'w-full justify-start gap-3',
-                      isActive && 'bg-secondary'
-                    )}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{item.label}</span>
-                  </Button>
-                </Link>
-              );
-            })}
-          </nav>
-
           {/* User Profile */}
-          <div className="border-t p-4">
+          <div className="border-b p-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -148,6 +124,33 @@ export function AppLayout({ children }: AppLayoutProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
+          {/* Navigation Links */}
+          <nav className="flex-1 space-y-1 p-4">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href || 
+                              (item.href !== '/' && pathname.startsWith(item.href));
+              
+              return (
+                <Link key={item.href} href={item.href}>
+                  <Button
+                    variant={isActive ? 'secondary' : 'ghost'}
+                    className={cn(
+                      'w-full justify-start gap-3',
+                      isActive && 'bg-secondary'
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Button>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Spacer for bottom alignment */}
+          <div className="p-4">
         </div>
       </aside>
 
