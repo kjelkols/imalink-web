@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import type { User, LoginCredentials, RegisterData } from '@/lib/types';
 
@@ -16,6 +17,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -80,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     apiClient.logout();
     setUser(null);
+    router.push('/login');
   };
 
   return (

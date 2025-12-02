@@ -1,21 +1,29 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useBildeliste } from '@/lib/bildeliste-context';
-import { AuthForm } from '@/components/auth-form';
 import { BildelisteViewer } from '@/components/bildeliste-viewer';
 import { SearchFilters } from '@/components/search-filters';
 import { PhotoDetailDialog } from '@/components/photo-detail-dialog';
 import type { PhotoWithTags, SearchParams } from '@/lib/types';
 
 export default function Home() {
-  const { user, logout, loading, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { loading, isAuthenticated } = useAuth();
   const { loadFromSearch, activeBildelisteId, setActiveBildeliste } = useBildeliste();
   const [searchParams, setSearchParams] = useState<SearchParams>({});
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoWithTags | null>(null);
   const [showPhotoDetail, setShowPhotoDetail] = useState(false);
   const [searching, setSearching] = useState(false);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [loading, isAuthenticated, router]);
 
   // Load initial search results
   useEffect(() => {
@@ -28,6 +36,7 @@ export default function Home() {
         handleSearch(searchParams);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   // Handle search parameter changes
@@ -70,7 +79,8 @@ export default function Home() {
   }
 
   if (!isAuthenticated) {
-    return <AuthForm />;
+    // Will redirect to /login via useEffect
+    return null;
   }
 
   return (

@@ -102,7 +102,7 @@ export default function EventsPage() {
             Logg inn for å se dine events
           </p>
           <Button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/login')}
             className="mt-4"
           >
             Gå til login
