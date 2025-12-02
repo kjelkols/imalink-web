@@ -149,8 +149,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             })}
           </nav>
 
-          {/* Spacer for bottom alignment */}
-          <div className="p-4">
         </div>
       </aside>
 
