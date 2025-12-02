@@ -674,10 +674,15 @@ class ApiClient {
       params.append('parent_id', parentId.toString());
     }
     
-    const response = await fetch(`${this.baseUrl}/events/?${params.toString()}`, {
+    const url = `${this.baseUrl}/events/?${params.toString()}`;
+    console.log('Fetching events from:', url);
+    console.log('Has token:', !!this.token);
+    
+    const response = await fetch(url, {
       headers: this.getHeaders(),
     });
 
+    console.log('Events response status:', response.status);
     return this.handleResponse<EventWithPhotos[]>(response);
   }
 
@@ -687,10 +692,15 @@ class ApiClient {
       params.append('root_id', rootId.toString());
     }
     
-    const response = await fetch(`${this.baseUrl}/events/tree?${params.toString()}`, {
+    const url = `${this.baseUrl}/events/tree?${params.toString()}`;
+    console.log('Fetching event tree from:', url);
+    console.log('Has token:', !!this.token);
+    
+    const response = await fetch(url, {
       headers: this.getHeaders(),
     });
 
+    console.log('Event tree response status:', response.status);
     return this.handleResponse<EventTreeResponse>(response);
   }
 
