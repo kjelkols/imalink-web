@@ -43,7 +43,16 @@ export default function EventsPage() {
       }
     } catch (err) {
       console.error('Failed to load events:', err);
-      setError(err instanceof Error ? err.message : 'Kunne ikke laste events');
+      const errorMessage = err instanceof Error ? err.message : 'Kunne ikke laste events';
+      
+      // More helpful error messages
+      if (errorMessage.includes('Failed to fetch')) {
+        setError('Kunne ikke koble til API. Sjekk at du er logget inn og at backend kjører.');
+      } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+        setError('Ikke autentisert. Vennligst logg inn på nytt.');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -130,8 +139,15 @@ export default function EventsPage() {
 
         {/* Error state */}
         {error && (
-          <div className="mb-6 rounded-md bg-destructive/15 p-4 text-sm text-destructive">
-            {error}
+          <div className="mb-6 rounded-md bg-destructive/15 p-4">
+            <p className="text-sm text-destructive mb-2">{error}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => loadData()}
+            >
+              Prøv igjen
+            </Button>
           </div>
         )}
 
