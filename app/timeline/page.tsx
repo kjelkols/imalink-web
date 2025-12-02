@@ -3,13 +3,18 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TimelineYear } from '@/components/timeline/timeline-nodes';
+import { PhotoGrid } from '@/components/photo-grid';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { apiClient } from '@/lib/api-client';
-import type { TimelineBucket } from '@/lib/types';
+import type { TimelineBucket, SearchParams } from '@/lib/types';
 
 export default function TimelinePage() {
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState<TimelineBucket[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showPhotoGrid, setShowPhotoGrid] = useState(false);
+  const [gridTitle, setGridTitle] = useState('');
+  const [gridSearchParams, setGridSearchParams] = useState<SearchParams | null>(null);
 
   useEffect(() => {
     async function loadYears() {
@@ -27,6 +32,12 @@ export default function TimelinePage() {
 
     loadYears();
   }, []);
+
+  const handleViewPhotos = (title: string, searchParams: SearchParams) => {
+    setGridTitle(title);
+    setGridSearchParams(searchParams);
+    setShowPhotoGrid(true);
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -62,12 +73,30 @@ export default function TimelinePage() {
                   year={bucket.year}
                   count={bucket.count}
                   firstPhoto={bucket.preview_hothash}
+                  onViewPhotos={handleViewPhotos}
                 />
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* PhotoGrid Dialog */}
+      <Dialog open={showPhotoGrid} onOpenChange={setShowPhotoGrid}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] h-[95vh]">
+          <DialogHeader>
+            <DialogTitle>{gridTitle}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-auto -mx-6 px-6">
+            {gridSearchParams && (
+              <PhotoGrid
+                searchParams={gridSearchParams}
+                enableBatchOperations={true}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

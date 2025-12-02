@@ -8,16 +8,18 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { 
   TimelineBucket,
-  Photo 
+  Photo,
+  SearchParams
 } from '@/lib/types';
 
 interface TimelineYearProps {
   year: number;
   count: number;
   firstPhoto: string;
+  onViewPhotos?: (title: string, searchParams: SearchParams) => void;
 }
 
-export function TimelineYear({ year, count, firstPhoto }: TimelineYearProps) {
+export function TimelineYear({ year, count, firstPhoto, onViewPhotos }: TimelineYearProps) {
   const [expanded, setExpanded] = useState(false);
   const [months, setMonths] = useState<TimelineBucket[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,43 +39,69 @@ export function TimelineYear({ year, count, firstPhoto }: TimelineYearProps) {
     setExpanded(!expanded);
   };
 
+  const handleViewPhotos = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onViewPhotos) {
+      const startDate = new Date(year, 0, 1, 0, 0, 0);
+      const endDate = new Date(year, 11, 31, 23, 59, 59);
+      onViewPhotos(`${year}`, {
+        taken_after: startDate.toISOString(),
+        taken_before: endDate.toISOString(),
+        offset: 0,
+        limit: 100,
+        sort_by: 'taken_at',
+        sort_order: 'asc'
+      });
+    }
+  };
+
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   return (
     <div className="border-b last:border-b-0">
-      <button
-        onClick={toggleExpand}
-        className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors"
-      >
-        {expanded ? (
-          <ChevronDown className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-        ) : (
-          <ChevronRight className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
-        )}
-        
-        <div className="relative h-16 w-16 flex-shrink-0 rounded overflow-hidden bg-muted">
-          {firstPhoto ? (
-            <Image
-              src={apiClient.getHotPreviewUrl(firstPhoto)}
-              alt={`${year}`}
-              fill
-              className="object-cover"
-              sizes="64px"
-            />
+      <div className="flex items-center gap-3 p-4">
+        <button
+          onClick={toggleExpand}
+          className="flex-1 flex items-center gap-3 hover:bg-muted/50 transition-colors rounded -m-2 p-2"
+        >
+          {expanded ? (
+            <ChevronDown className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <ImageIcon className="h-6 w-6 text-muted-foreground" />
-            </div>
+            <ChevronRight className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
           )}
-        </div>
-
-        <div className="flex-1 text-left">
-          <div className="font-semibold text-lg">{year}</div>
-          <div className="text-sm text-muted-foreground">
-            {count.toLocaleString()} {count === 1 ? 'photo' : 'photos'}
+          
+          <div className="relative h-16 w-16 flex-shrink-0 rounded overflow-hidden bg-muted">
+            {firstPhoto ? (
+              <Image
+                src={apiClient.getHotPreviewUrl(firstPhoto)}
+                alt={`${year}`}
+                fill
+                className="object-cover"
+                sizes="64px"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <ImageIcon className="h-6 w-6 text-muted-foreground" />
+              </div>
+            )}
           </div>
-        </div>
-      </button>
+
+          <div className="flex-1 text-left">
+            <div className="font-semibold text-lg">{year}</div>
+            <div className="text-sm text-muted-foreground">
+              {count.toLocaleString()} {count === 1 ? 'photo' : 'photos'}
+            </div>
+          </div>
+        </button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleViewPhotos}
+        >
+          View Photos
+        </Button>
+      </div>
 
       {expanded && (
         <div className="pl-12 pb-4">
@@ -88,6 +116,7 @@ export function TimelineYear({ year, count, firstPhoto }: TimelineYearProps) {
                   month={bucket.month!}
                   count={bucket.count}
                   firstPhoto={bucket.preview_hothash}
+                  onViewPhotos={onViewPhotos}
                 />
               ))}
             </div>
@@ -103,9 +132,10 @@ interface TimelineMonthProps {
   month: number;
   count: number;
   firstPhoto: string;
+  onViewPhotos?: (title: string, searchParams: SearchParams) => void;
 }
 
-function TimelineMonth({ year, month, count, firstPhoto }: TimelineMonthProps) {
+function TimelineMonth({ year, month, count, firstPhoto, onViewPhotos }: TimelineMonthProps) {
   const [expanded, setExpanded] = useState(false);
   const [days, setDays] = useState<TimelineBucket[]>([]);
   const [loading, setLoading] = useState(false);
@@ -125,15 +155,34 @@ function TimelineMonth({ year, month, count, firstPhoto }: TimelineMonthProps) {
     setExpanded(!expanded);
   };
 
+  const handleViewPhotos = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onViewPhotos) {
+      const startDate = new Date(year, month - 1, 1, 0, 0, 0);
+      const endDate = new Date(year, month, 0, 23, 59, 59);
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+      onViewPhotos(`${monthNames[month - 1]} ${year}`, {
+        taken_after: startDate.toISOString(),
+        taken_before: endDate.toISOString(),
+        offset: 0,
+        limit: 100,
+        sort_by: 'taken_at',
+        sort_order: 'asc'
+      });
+    }
+  };
+
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
                       'July', 'August', 'September', 'October', 'November', 'December'];
 
   return (
     <div className="border-l-2 border-muted pl-4">
-      <button
-        onClick={toggleExpand}
-        className="w-full flex items-center gap-3 p-3 hover:bg-muted/30 rounded transition-colors"
-      >
+      <div className="flex items-center gap-2">
+        <button
+          onClick={toggleExpand}
+          className="flex-1 flex items-center gap-3 p-3 hover:bg-muted/30 rounded transition-colors"
+        >
         {expanded ? (
           <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
         ) : (
@@ -163,6 +212,15 @@ function TimelineMonth({ year, month, count, firstPhoto }: TimelineMonthProps) {
           </div>
         </div>
       </button>
+      
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleViewPhotos}
+      >
+        View
+      </Button>
+      </div>
 
       {expanded && (
         <div className="pl-8 pt-2 space-y-1">
@@ -177,6 +235,7 @@ function TimelineMonth({ year, month, count, firstPhoto }: TimelineMonthProps) {
                 day={bucket.day!}
                 count={bucket.count}
                 firstPhoto={bucket.preview_hothash}
+                onViewPhotos={onViewPhotos}
               />
             ))
           )}
@@ -192,9 +251,10 @@ interface TimelineDayProps {
   day: number;
   count: number;
   firstPhoto: string;
+  onViewPhotos?: (title: string, searchParams: SearchParams) => void;
 }
 
-function TimelineDay({ year, month, day, count, firstPhoto }: TimelineDayProps) {
+function TimelineDay({ year, month, day, count, firstPhoto, onViewPhotos }: TimelineDayProps) {
   const [expanded, setExpanded] = useState(false);
   const [hours, setHours] = useState<TimelineBucket[]>([]);
   const [loading, setLoading] = useState(false);
@@ -214,6 +274,28 @@ function TimelineDay({ year, month, day, count, firstPhoto }: TimelineDayProps) 
     setExpanded(!expanded);
   };
 
+  const handleViewPhotos = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onViewPhotos) {
+      const startDate = new Date(year, month - 1, day, 0, 0, 0);
+      const endDate = new Date(year, month - 1, day, 23, 59, 59);
+      const dateStr = new Date(year, month - 1, day).toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      onViewPhotos(dateStr, {
+        taken_after: startDate.toISOString(),
+        taken_before: endDate.toISOString(),
+        offset: 0,
+        limit: 100,
+        sort_by: 'taken_at',
+        sort_order: 'asc'
+      });
+    }
+  };
+
   const dateStr = new Date(year, month - 1, day).toLocaleDateString('en-US', { 
     weekday: 'short', 
     day: 'numeric' 
@@ -221,10 +303,11 @@ function TimelineDay({ year, month, day, count, firstPhoto }: TimelineDayProps) 
 
   return (
     <div className="border-l-2 border-muted pl-4">
-      <button
-        onClick={toggleExpand}
-        className="w-full flex items-center gap-2 p-2 hover:bg-muted/20 rounded transition-colors"
-      >
+      <div className="flex items-center gap-2">
+        <button
+          onClick={toggleExpand}
+          className="flex-1 flex items-center gap-2 p-2 hover:bg-muted/20 rounded transition-colors"
+        >
         {expanded ? (
           <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
         ) : (
@@ -254,6 +337,15 @@ function TimelineDay({ year, month, day, count, firstPhoto }: TimelineDayProps) 
           </div>
         </div>
       </button>
+      
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleViewPhotos}
+      >
+        View
+      </Button>
+      </div>
 
       {expanded && (
         <div className="pl-6 pt-2 space-y-1">
@@ -269,6 +361,7 @@ function TimelineDay({ year, month, day, count, firstPhoto }: TimelineDayProps) 
                 hour={bucket.hour!}
                 count={bucket.count}
                 firstPhoto={bucket.preview_hothash}
+                onViewPhotos={onViewPhotos}
               />
             ))
           )}
@@ -285,9 +378,10 @@ interface TimelineHourProps {
   hour: number;
   count: number;
   firstPhoto: string;
+  onViewPhotos?: (title: string, searchParams: SearchParams) => void;
 }
 
-function TimelineHour({ year, month, day, hour, count, firstPhoto }: TimelineHourProps) {
+function TimelineHour({ year, month, day, hour, count, firstPhoto, onViewPhotos }: TimelineHourProps) {
   const [expanded, setExpanded] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -317,14 +411,38 @@ function TimelineHour({ year, month, day, hour, count, firstPhoto }: TimelineHou
     setExpanded(!expanded);
   };
 
+  const handleViewPhotos = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onViewPhotos) {
+      const startDate = new Date(year, month - 1, day, hour, 0, 0);
+      const endDate = new Date(year, month - 1, day, hour, 59, 59);
+      const dateStr = new Date(year, month - 1, day).toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+      onViewPhotos(`${dateStr} at ${timeStr}`, {
+        taken_after: startDate.toISOString(),
+        taken_before: endDate.toISOString(),
+        offset: 0,
+        limit: 100,
+        sort_by: 'taken_at',
+        sort_order: 'asc'
+      });
+    }
+  };
+
   const timeStr = `${hour.toString().padStart(2, '0')}:00`;
 
   return (
     <div className="border-l-2 border-muted pl-3">
-      <button
-        onClick={toggleExpand}
-        className="w-full flex items-center gap-2 p-2 hover:bg-muted/10 rounded transition-colors"
-      >
+      <div className="flex items-center gap-2">
+        <button
+          onClick={toggleExpand}
+          className="flex-1 flex items-center gap-2 p-2 hover:bg-muted/10 rounded transition-colors"
+        >
         {expanded ? (
           <ChevronDown className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
         ) : (
@@ -354,6 +472,15 @@ function TimelineHour({ year, month, day, hour, count, firstPhoto }: TimelineHou
           </div>
         </div>
       </button>
+      
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleViewPhotos}
+      >
+        View
+      </Button>
+      </div>
 
       {expanded && (
         <div className="pl-4 pt-2 pb-2">
