@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/api-client';
-import type { PhotoWithTags, SearchParams } from '@/lib/types';
+import type { PhotoWithTags, ExtendedSearchParams } from '@/lib/types';
 import { usePhotoStore, PHOTO_DISPLAY_CONFIGS } from '@/lib/photo-store';
 import { PhotoCard } from './photo-card';
 import { AddToCollectionDialog } from './add-to-collection-dialog';
@@ -11,7 +11,7 @@ import { Badge } from './ui/badge';
 import { Grid2X2, Grid3X3, LayoutGrid, List, CheckSquare, Square, FolderPlus, X } from 'lucide-react';
 
 interface PhotoGridProps {
-  searchParams?: SearchParams;
+  searchParams?: ExtendedSearchParams;
   onPhotoClick?: (photo: PhotoWithTags) => void;
   showViewSelector?: boolean;
   enableBatchOperations?: boolean; // Enable batch selection features
@@ -46,16 +46,31 @@ export function PhotoGrid({
       setError(null);
 
       const currentOffset = append ? offset : 0;
-      const response = await apiClient.getPhotos({
-        ...searchParams,
-        limit,
-        offset: currentOffset,
-      });
+      
+      let items: PhotoWithTags[];
+      let total: number;
 
-      console.log('Photos response:', response);
+      // Special handling for collection_id - use dedicated endpoint
+      if (searchParams?.collection_id) {
+        const collectionPhotos = await apiClient.getCollectionPhotos(
+          searchParams.collection_id,
+          currentOffset,
+          limit
+        );
+        items = collectionPhotos as PhotoWithTags[];
+        total = items.length; // TODO: Backend should return total count
+      } else {
+        // Standard photo search
+        const response = await apiClient.getPhotos({
+          ...searchParams,
+          limit,
+          offset: currentOffset,
+        });
+        items = (response.data || []) as PhotoWithTags[];
+        total = response.meta?.total || items.length;
+      }
 
-      const items = (response.data || []) as PhotoWithTags[];
-      const total = response.meta?.total || items.length;
+      console.log('Photos response:', items.length, 'items');
 
       // Add photos to central store
       addPhotos(items);

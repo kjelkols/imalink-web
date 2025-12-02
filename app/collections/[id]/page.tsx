@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
-import { useBildeliste } from '@/lib/bildeliste-context';
 import { apiClient } from '@/lib/api-client';
-import type { Collection, PhotoWithTags } from '@/lib/types';
-import { BildelisteViewer } from '@/components/bildeliste-viewer';
+import type { Collection, PhotoWithTags, ExtendedSearchParams } from '@/lib/types';
+import { PhotoGrid } from '@/components/photo-grid';
 import { PhotoDetailDialog } from '@/components/photo-detail-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,14 +36,13 @@ export default function CollectionDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const { loadFromCollection, getBildeliste, saveAsCollection, deleteBildeliste } = useBildeliste();
   
   const collectionId = parseInt(params.id as string);
   
   const [collection, setCollection] = useState<Collection | null>(null);
-  const [bildelisteId, setBildelisteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
@@ -52,13 +50,10 @@ export default function CollectionDetailPage() {
   const [saving, setSaving] = useState(false);
   
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
   
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoWithTags | null>(null);
   const [showPhotoDetail, setShowPhotoDetail] = useState(false);
-
-  const bildeliste = bildelisteId ? getBildeliste(bildelisteId) : null;
 
   useEffect(() => {
     if (isAuthenticated && collectionId) {
@@ -75,10 +70,6 @@ export default function CollectionDetailPage() {
       setCollection(data);
       setEditName(data.name);
       setEditDescription(data.description || '');
-      
-      // Load collection into bildeliste
-      const bId = await loadFromCollection(collectionId);
-      setBildelisteId(bId);
     } catch (err) {
       console.error('Failed to load collection:', err);
       setError(err instanceof Error ? err.message : 'Kunne ikke laste samling');
@@ -88,20 +79,14 @@ export default function CollectionDetailPage() {
   };
 
   const handleSave = async () => {
-    if (!bildelisteId || !bildeliste || !editName.trim()) return;
+    if (!editName.trim()) return;
 
     setSaving(true);
     try {
-      // If bildeliste is modified, save changes to server
-      if (bildeliste.modified) {
-        await saveAsCollection(bildelisteId, editName.trim(), editDescription.trim() || undefined);
-      } else {
-        // Just update metadata
-        await apiClient.updateCollection(collectionId, {
-          name: editName.trim(),
-          description: editDescription.trim() || undefined,
-        });
-      }
+      await apiClient.updateCollection(collectionId, {
+        name: editName.trim(),
+        description: editDescription.trim() || undefined,
+      });
       
       await loadCollectionData();
       setIsEditing(false);
@@ -125,9 +110,6 @@ export default function CollectionDetailPage() {
     setDeleting(true);
     try {
       await apiClient.deleteCollection(collectionId);
-      if (bildelisteId) {
-        deleteBildeliste(bildelisteId);
-      }
       router.push('/collections');
     } catch (err) {
       console.error('Failed to delete collection:', err);
@@ -137,37 +119,20 @@ export default function CollectionDetailPage() {
     }
   };
 
-  const checkForUnsavedChanges = () => {
-    if (bildeliste?.modified) {
-      setShowSaveDialog(true);
-      return true;
-    }
-    return false;
-  };
-
   const handleBack = () => {
-    if (!checkForUnsavedChanges()) {
-      router.push('/collections');
-    }
-  };
-
-  const handleSaveAndExit = async () => {
-    if (bildelisteId && bildeliste) {
-      await saveAsCollection(bildelisteId, collection?.name || 'Samling', collection?.description || undefined);
-      router.push('/collections');
-    }
-  };
-
-  const handleDiscardAndExit = () => {
-    if (bildelisteId) {
-      deleteBildeliste(bildelisteId);
-    }
     router.push('/collections');
   };
 
   const handlePhotoClick = (photo: PhotoWithTags) => {
     setSelectedPhoto(photo);
     setShowPhotoDetail(true);
+  };
+
+  const handlePhotosChanged = () => {
+    // Refresh collection metadata to update photo count
+    loadCollectionData();
+    // Trigger PhotoGrid refresh
+    setRefreshKey(prev => prev + 1);
   };
 
   const formatDate = (dateString: string) => {
@@ -283,12 +248,6 @@ export default function CollectionDetailPage() {
               </div>
 
               <div className="flex gap-2">
-                {bildeliste?.modified && (
-                  <Button variant="default" onClick={handleSave} disabled={saving}>
-                    <Save className="mr-2 h-4 w-4" />
-                    {saving ? 'Lagrer...' : 'Lagre endringer'}
-                  </Button>
-                )}
                 <Button variant="outline" onClick={() => setIsEditing(true)}>
                   <Edit2 className="mr-2 h-4 w-4" />
                   Rediger
@@ -304,17 +263,12 @@ export default function CollectionDetailPage() {
       </div>
 
       {/* Photos grid */}
-      {bildelisteId ? (
-        <BildelisteViewer
-          bildelisteId={bildelisteId}
-          onPhotoClick={handlePhotoClick}
-        />
-      ) : (
-        <div className="flex flex-col items-center justify-center py-12">
-          <ImageIcon className="mb-4 h-16 w-16 text-muted-foreground/30" />
-          <h2 className="mb-2 text-xl font-semibold">Laster bilder...</h2>
-        </div>
-      )}
+      <PhotoGrid
+        key={refreshKey}
+        searchParams={{ collection_id: collectionId }}
+        onPhotoClick={handlePhotoClick}
+        enableBatchOperations={false}
+      />
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -339,31 +293,7 @@ export default function CollectionDetailPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Unsaved changes dialog */}
-      <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-amber-500" />
-              Ulagrede endringer
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Du har gjort endringer i samlingen som ikke er lagret.
-              Vil du lagre endringene før du går tilbake?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleDiscardAndExit}>
-              Forkast endringer
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleSaveAndExit}>
-              Lagre og gå tilbake
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-        {/* Photo detail dialog */}
+      {/* Photo detail dialog */}
         <PhotoDetailDialog
         photo={selectedPhoto}
         open={showPhotoDetail}

@@ -91,9 +91,10 @@ export interface PhotoMetadata extends Partial<PhotoUpdate> {
   gps_longitude?: number | null;
 }
 
-// Extended search params with event filtering (for future backend support)
+// Extended search params with event and collection filtering
 export interface ExtendedSearchParams extends SearchParams {
   event_id?: number; // Filter photos by event membership
+  collection_id?: number; // Filter photos by collection membership
 }
 
 // ===== Frontend-specific Extensions =====
