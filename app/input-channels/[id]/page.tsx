@@ -114,17 +114,6 @@ export default function InputChannelDetailPage() {
     setSelectionMode(false);
   };
 
-  // Get photo IDs from selected hothashes
-  const getSelectedPhotoIds = async (): Promise<number[]> => {
-    const response = await apiClient.getPhotos({
-      input_channel_id: channelId,
-      limit: 1000,
-    });
-    return response.data
-      .filter(p => selectedPhotos.has(p.hothash))
-      .map(p => p.id);
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('nb-NO', {
