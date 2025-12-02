@@ -32,6 +32,19 @@
 - Author endpoints (GET without auth, POST/PUT/DELETE with auth)
 - Visibility filter support in getPhotoTexts()
 
+### 5. Events System
+- **Full Implementation**: Events replace Collections for hierarchical photo organization
+- **Architecture Change**: Many-to-many → One-to-many (photo.event_id)
+- **API Client**: All Events endpoints implemented
+- **Components**:
+  - EventsPage (list/tree views)
+  - EventTreeView (hierarchical display)
+  - CreateEventDialog
+  - MoveEventDialog
+  - AddToEventDialog (bulk operations)
+- **PhotoCard**: Shows event badge
+- **Deployment**: Successfully deployed to production (trollfjell.com)
+
 ---
 
 ## ⏳ Remaining Tasks
@@ -168,4 +181,22 @@ Backend documentation:
 
 ---
 
-Updated: 2025-11-08
+## 🚀 Recent Updates (December 2025)
+
+### Events System Deployed
+- Replaced Collections with hierarchical Events
+- Changed from many-to-many to one-to-many relationship
+- Fixed infinite loop bug in Events page useEffect
+- Backend database migrated to support Events
+- All pages working in production except for database migration requirement
+
+### Production Deployment
+- Successfully deployed to https://imalink.trollfjell.com
+- Backend API: https://api.trollfjell.com/api/v1
+- PM2 process management
+- Node.js via nvm
+- Fixed CORS issues with Events endpoints
+
+---
+
+Updated: 2025-12-02
