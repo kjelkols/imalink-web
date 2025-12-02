@@ -84,10 +84,11 @@ export type PaginationMeta = components['schemas']['PaginationMeta'];
 
 export type SearchParams = Partial<PhotoSearch>;
 
-// PhotoMetadata extends PhotoUpdate with GPS fields for frontend convenience
+// PhotoMetadata extends PhotoUpdate with GPS fields and event_id for frontend convenience
 export interface PhotoMetadata extends Partial<PhotoUpdate> {
   gps_latitude?: number | null;
   gps_longitude?: number | null;
+  event_id?: number | null; // One-to-many: photo belongs to max ONE event
 }
 
 // Extended search params with event and collection filtering
@@ -227,6 +228,8 @@ export interface EventPhotosResponse {
   event_id: number;
   photos_added?: number;
   photos_removed?: number;
+  affected_count?: number;
+  photo_count?: number;
 }
 
 // ===== Utility Types =====
