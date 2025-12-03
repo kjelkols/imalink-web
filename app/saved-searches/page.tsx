@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { apiClient } from '@/lib/api-client';
-import type { SavedSearchSummary, SearchParams } from '@/lib/types';
+import type { SavedSearchSummary, SearchParams, PhotoWithTags } from '@/lib/types';
 import { Search, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { SearchFilters } from '@/components/search-filters';
 import { SavedSearchCard } from '@/components/saved-search-card';
 import { SavedSearchDialog } from '@/components/saved-search-dialog';
 import { PhotoGrid } from '@/components/photo-grid';
+import { PhotoDetailDialog } from '@/components/photo-detail-dialog';
 
 export default function SavedSearchesPage() {
   const router = useRouter();
@@ -33,6 +34,10 @@ export default function SavedSearchesPage() {
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSearchId, setEditingSearchId] = useState<number | null>(null);
+  
+  // Photo detail state
+  const [selectedPhoto, setSelectedPhoto] = useState<PhotoWithTags | null>(null);
+  const [showPhotoDetail, setShowPhotoDetail] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -119,6 +124,11 @@ export default function SavedSearchesPage() {
 
   const handleDialogSaved = () => {
     loadSavedSearches();
+  };
+
+  const handlePhotoClick = (photo: PhotoWithTags) => {
+    setSelectedPhoto(photo);
+    setShowPhotoDetail(true);
   };
 
   if (authLoading) {
@@ -261,6 +271,7 @@ export default function SavedSearchesPage() {
           
           <PhotoGrid
             searchParams={currentSearchParams}
+            onPhotoClick={handlePhotoClick}
             enableBatchOperations={true}
           />
         </div>
@@ -273,6 +284,13 @@ export default function SavedSearchesPage() {
         searchId={editingSearchId}
         initialCriteria={editingSearchId ? undefined : currentSearchParams}
         onSaved={handleDialogSaved}
+      />
+
+      {/* Photo Detail Dialog */}
+      <PhotoDetailDialog
+        photo={selectedPhoto}
+        open={showPhotoDetail}
+        onOpenChange={setShowPhotoDetail}
       />
     </div>
   );
