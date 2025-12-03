@@ -42,8 +42,8 @@ export function TimelineYear({ year, count, firstPhoto, onViewPhotos }: Timeline
   const handleViewPhotos = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onViewPhotos) {
-      const startDate = new Date(year, 0, 1, 0, 0, 0);
-      const endDate = new Date(year, 11, 31, 23, 59, 59);
+      const startDate = new Date(Date.UTC(year, 0, 1, 0, 0, 0));
+      const endDate = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
       onViewPhotos(`${year}`, {
         taken_after: startDate.toISOString(),
         taken_before: endDate.toISOString(),
@@ -158,8 +158,8 @@ function TimelineMonth({ year, month, count, firstPhoto, onViewPhotos }: Timelin
   const handleViewPhotos = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onViewPhotos) {
-      const startDate = new Date(year, month - 1, 1, 0, 0, 0);
-      const endDate = new Date(year, month, 0, 23, 59, 59);
+      const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
+      const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
                           'July', 'August', 'September', 'October', 'November', 'December'];
       onViewPhotos(`${monthNames[month - 1]} ${year}`, {
@@ -277,8 +277,8 @@ function TimelineDay({ year, month, day, count, firstPhoto, onViewPhotos }: Time
   const handleViewPhotos = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onViewPhotos) {
-      const startDate = new Date(year, month - 1, day, 0, 0, 0);
-      const endDate = new Date(year, month - 1, day, 23, 59, 59);
+      const startDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+      const endDate = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
       const dateStr = new Date(year, month - 1, day).toLocaleDateString('en-US', { 
         weekday: 'long', 
         year: 'numeric',
@@ -414,8 +414,8 @@ function TimelineHour({ year, month, day, hour, count, firstPhoto, onViewPhotos 
   const handleViewPhotos = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onViewPhotos) {
-      const startDate = new Date(year, month - 1, day, hour, 0, 0);
-      const endDate = new Date(year, month - 1, day, hour, 59, 59);
+      const startDate = new Date(Date.UTC(year, month - 1, day, hour, 0, 0));
+      const endDate = new Date(Date.UTC(year, month - 1, day, hour, 59, 59, 999));
       const dateStr = new Date(year, month - 1, day).toLocaleDateString('en-US', { 
         weekday: 'long', 
         year: 'numeric',
