@@ -885,6 +885,26 @@ class ApiClient {
 
     return this.handleResponse<PaginatedResponse<Photo>>(response);
   }
+
+  // Admin / Debug
+  async getDatabaseStats(): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/database-stats`, {
+      headers: this.getHeaders(false), // No auth required per API spec
+    });
+
+    return this.handleResponse<any>(response);
+  }
+
+  async clearDatabase(): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/debug/clear-database`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+    });
+
+    if (response.status !== 200) {
+      await this.handleResponse<void>(response);
+    }
+  }
 }
 
 // Export a singleton instance
